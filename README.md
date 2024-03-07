@@ -1,3 +1,5 @@
+# PATCHED ON 2nd Feb 2024
+
 ## DISCORD TOKEN LOGGER
 - Update the webhook url.
 - Send it to the victim.
